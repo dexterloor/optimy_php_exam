@@ -1,0 +1,9 @@
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="Optimy PHP Exam Unit Test Suite">
+            <directory>src/Tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
