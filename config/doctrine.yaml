@@ -1,0 +1,19 @@
+doctrine:
+  dbal:
+    driver: 'pdo_mysql'
+    user: 'root'
+    password: 'root'
+    dbname: 'optimy_php_exam'
+    host: '127.0.0.1'
+    port: 3306
+
+  orm:
+    isDevMode: true
+    metadata_dirs: [ "src/Entity" ]
+    mappings:
+      App:
+        is_bundle: false
+        type: attribute
+        dir: '%kernel.project_dir%/src/Entity'
+        prefix: 'App\Entity'
+        alias: App

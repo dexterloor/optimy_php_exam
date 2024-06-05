@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__ . '/../bootstrap.php';
+
+// Core
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Symfony\Component\Console\Application;
+
+// For Entities
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+
+// For Fixture Loading
+use Doctrine\Common\DataFixtures\Loader;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+
+// Fixture Files
+use App\DataFixtures\NewsFixtures;
+use App\DataFixtures\CommentFixtures;
+
+// Create a CLI App Instance to make use of Doctrine Commands for generating migrations
+$cli = new Application('Doctrine Command Line Interface');
+
+// Create an EntityManagerProvider and add the commands to the application
+$entityManagerProvider = new SingleManagerProvider($entityManager);
+ConsoleRunner::addCommands($cli, $entityManagerProvider);
+
+// Add fixture loading command
+$cli->register('doctrine:fixtures:load')
+    ->setDescription('Load data fixtures to your database.')
+    ->setCode(function ($input, $output) use ($entityManager) {
+
+        // Get the Fixtures to be loaded
+        $loader = new Loader();
+        addFixtures(new NewsFixtures(), $loader);
+        addFixtures(new CommentFixtures(), $loader);
+
+        // Execute the fixtures from the loader
+        $purger = new ORMPurger();
+        $executor = new ORMExecutor($entityManager, $purger);
+        $executor->execute($loader->getFixtures());
+
+        $output->writeln('Data fixtures loaded successfully!');
+    });
+
+
+// Run the console application
+$cli->run();
+
+// Helper Function for adding Ordered Fixtures to be executed
+function addFixtures($fixture, $loader)
+{
+    if ($fixture instanceof OrderedFixtureInterface) {
+        $order = $fixture->getOrder();
+        $loader->addFixture($fixture, $order);
+    } else {
+        $loader->addFixture($fixture);
+    }
+}
